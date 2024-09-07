@@ -31,35 +31,21 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify([...messages, { role: 'user', content: message }]),
-      })
-  
+      });
+    
       if (!response.ok) {
-        throw new Error('Network response was not ok')
+        const errorDetails = await response.text(); // Get more error details
+        throw new Error(`Server error: ${errorDetails}`);
       }
-  
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-  
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const text = decoder.decode(value, { stream: true })
-        setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1]
-          let otherMessages = messages.slice(0, messages.length - 1)
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ]
-        })
-      }
+      // Continue with streaming logic...
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error); // Better error logging
       setMessages((messages) => [
         ...messages,
         { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
-      ])
+      ]);
     }
+    
     setIsLoading(false)
   }
   const handleKeyPress = (event) => {
