@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Stack, TextField, Typography, IconButton, ThemeProvider, createTheme } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography, IconButton, ThemeProvider, createTheme, LinearProgress } from '@mui/material'; // Import LinearProgress
 import { Send, DarkMode, LightMode } from '@mui/icons-material';
 import { useState, useRef, useEffect } from 'react';
 
@@ -44,11 +44,19 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [darkMode, setDarkMode] = useState(false); // State for dark mode
+  const [progress, setProgress] = useState(0); // State to track progress
+
+  // Total number of tasks for preparation (customizable)
+  const totalSteps = 26;
 
   const theme = getTheme(darkMode ? 'dark' : 'light'); // Use dark or light theme based on state
 
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev); // Toggle dark mode
+  };
+
+  const updateProgress = () => {
+    setProgress((prevProgress) => Math.min(prevProgress + (100 / totalSteps), 100)); // Update the progress bar
   };
 
   const sendMessage = async () => {
@@ -97,6 +105,8 @@ export default function Home() {
           )
         );
       }
+
+      updateProgress(); // Update progress after assistant responds
     } catch (error) {
       console.error('Error:', error);
       setMessages((prevMessages) => [
@@ -164,6 +174,11 @@ export default function Home() {
           <IconButton onClick={toggleDarkMode} color="inherit">
             {darkMode ? <LightMode /> : <DarkMode />} {/* Change icon based on theme */}
           </IconButton>
+        </Box>
+
+        {/* Progress Bar */}
+        <Box sx={{ width: '100%', maxWidth: '600px', mt: 2 }}>
+          <LinearProgress variant="determinate" value={progress} />
         </Box>
 
         {/* Main chat container */}
@@ -238,60 +253,61 @@ export default function Home() {
               </Box>
             )}
             <div ref={messagesEndRef} />
-          </Stack>
+          </          Stack>
 
-          <Stack direction="row" spacing={2}>
-            <TextField
-              label="Type a message..."
-              fullWidth
-              variant="outlined"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={isLoading}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                },
-              }}
-            />
-            <Button
-              variant="contained"
-              onClick={sendMessage}
-              disabled={isLoading}
-              sx={{
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #1e88e5, #29b6f6)',
-                color: 'white',
-                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #1e88e5, #0288d1)',
-                },
-              }}
-            >
-              {isLoading ? '...' : <Send />} {/* Icon for send button */}
-            </Button>
-          </Stack>
-        </Stack>
+{/* Input and send button */}
+<Stack direction="row" spacing={2}>
+  <TextField
+    label="Type a message..."
+    fullWidth
+    variant="outlined"
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+    onKeyPress={handleKeyPress}
+    disabled={isLoading}
+    sx={{
+      '& .MuiOutlinedInput-root': {
+        borderRadius: '12px',
+      },
+    }}
+  />
+  <Button
+    variant="contained"
+    onClick={sendMessage}
+    disabled={isLoading}
+    sx={{
+      width: '56px',
+      height: '56px',
+      background: 'linear-gradient(135deg, #1e88e5, #29b6f6)',
+      color: 'white',
+      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+      '&:hover': {
+        background: 'linear-gradient(135deg, #1e88e5, #0288d1)',
+      },
+    }}
+  >
+    {isLoading ? '...' : <Send />} {/* Icon for send button */}
+  </Button>
+</Stack>
+</Stack>
 
-        {/* Footer with reserved rights */}
-        <Box
-          sx={{
-            width: '100%',
-            maxWidth: '600px',
-            p: 2,
-            textAlign: 'center',
-            mt: 2,
-            color: '#555',
-          }}
-        >
-          <Typography variant="body2">
-            © 2024 Ready to Go. All rights reserved.
-          </Typography>
-        </Box>
-      </Box>
-    </ThemeProvider>
-  );
+{/* Footer with reserved rights */}
+<Box
+sx={{
+  width: '100%',
+  maxWidth: '600px',
+  p: 2,
+  textAlign: 'center',
+  mt: 2,
+  color: '#555',
+}}
+>
+<Typography variant="body2">
+  © 2024 Ready to Go. All rights reserved.
+</Typography>
+</Box>
+</Box>
+</ThemeProvider>
+);
 }
 
