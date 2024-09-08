@@ -1,17 +1,21 @@
 'use client';
 
-import { Box, Button, Stack, TextField, Typography, useTheme, ThemeProvider, createTheme } from '@mui/material';
-import { Send } from '@mui/icons-material'; // Import Material-UI icons
+import { Box, Button, Stack, TextField, Typography, IconButton, ThemeProvider, createTheme } from '@mui/material';
+import { Send, DarkMode, LightMode } from '@mui/icons-material';
 import { useState, useRef, useEffect } from 'react';
 
-// Custom theme with blue colors and Google Fonts
-const theme = createTheme({
+// Light and Dark theme configurations
+const getTheme = (mode) => createTheme({
   palette: {
+    mode: mode,
     primary: {
-      main: '#29b6f6', // Light Blue
+      main: mode === 'light' ? '#29b6f6' : '#90caf9', // Light Blue in light mode, lighter blue for dark mode
     },
     secondary: {
-      main: '#03dac6', // Cyan
+      main: mode === 'light' ? '#03dac6' : '#80cbc4', // Cyan in light mode, softer cyan for dark mode
+    },
+    background: {
+      default: mode === 'light' ? '#e3f2fd' : '#1c1c1c', // Lighter background for light mode, darker background for dark mode
     },
   },
   typography: {
@@ -39,6 +43,13 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // State for dark mode
+
+  const theme = getTheme(darkMode ? 'dark' : 'light'); // Use dark or light theme based on state
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev); // Toggle dark mode
+  };
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
@@ -125,7 +136,7 @@ export default function Home() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          background: 'linear-gradient(135deg, #e3f2fd, #bbdefb)',
+          background: theme.palette.background.default, // Background color changes with theme
         }}
       >
         {/* Header with logo and title */}
@@ -139,13 +150,20 @@ export default function Home() {
             textAlign: 'center',
             borderRadius: '12px 12px 0 0',
             boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
-         <Typography variant="h5" fontWeight="bold">
-  <img src="https://i.ibb.co/QCxrxfy/logo.png" alt="Logo" style={{ width: '40px', marginRight: '10px', verticalAlign: 'middle' }} />
-  Ready to Go ?
-</Typography>
+          <Typography variant="h5" fontWeight="bold">
+            <img src="https://i.ibb.co/QCxrxfy/logo.png" alt="Logo" style={{ width: '40px', marginRight: '10px', verticalAlign: 'middle' }} />
+            Ready to Go?
+          </Typography>
 
+          {/* Dark mode toggle switch */}
+          <IconButton onClick={toggleDarkMode} color="inherit">
+            {darkMode ? <LightMode /> : <DarkMode />} {/* Change icon based on theme */}
+          </IconButton>
         </Box>
 
         {/* Main chat container */}
@@ -154,7 +172,7 @@ export default function Home() {
           width="100%"
           maxWidth="600px"
           height="70vh"
-          bgcolor="white"
+          bgcolor={theme.palette.mode === 'light' ? 'white' : '#333'} // Background for messages
           boxShadow="0px 8px 24px rgba(0, 0, 0, 0.15)"
           borderRadius={4}
           p={3}
@@ -182,7 +200,9 @@ export default function Home() {
                 <Box
                   sx={{
                     backgroundColor:
-                      message.role === 'assistant' ? 'primary.main' : 'secondary.main',
+                      darkMode 
+                        ? (message.role === 'assistant' ? '#424242' : '#616161') // Shades of gray for dark mode
+                        : (message.role === 'assistant' ? 'primary.main' : 'secondary.main'),
                     color: 'white',
                     borderRadius: '16px',
                     p: 2,
@@ -203,7 +223,7 @@ export default function Home() {
               <Box display="flex" justifyContent="flex-start">
                 <Box
                   sx={{
-                    backgroundColor: 'primary.main',
+                    backgroundColor: darkMode ? '#424242' : 'primary.main', // Adjust typing box color in dark mode
                     color: 'white',
                     borderRadius: '16px',
                     p: 2,
@@ -252,7 +272,6 @@ export default function Home() {
             >
               {isLoading ? '...' : <Send />} {/* Icon for send button */}
             </Button>
-           
           </Stack>
         </Stack>
 
@@ -273,7 +292,6 @@ export default function Home() {
         </Box>
       </Box>
     </ThemeProvider>
- 
-
   );
 }
+
