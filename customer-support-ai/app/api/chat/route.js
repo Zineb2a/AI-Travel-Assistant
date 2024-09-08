@@ -1,42 +1,92 @@
-import {NextResponse} from 'next/server' // Import NextResponse from Next.js for handling responses
-import OpenAI from 'openai' // Import OpenAI library for interacting with the OpenAI API
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
-// System prompt for the AI, providing guidelines on how to respond to users
-const systemPrompt ="You are a helpful, professional, and friendly customer support assistant. Your role is to assist users by providing clear and accurate responses to their questions about our products and services. Be polite, patient, and provide step-by-step guidance where necessary. If the issue is beyond your capabilities, kindly suggest contacting a human support representative."
+// System prompt for the AI, enhanced with dynamic checklist logic
+const systemPrompt = `You are a highly knowledgeable, professional, and friendly travel assistant specializing in helping users plan trips, book flights, find accommodations, and explore destinations. When answering users' queries:
 
+1. **Keep Responses Concise**: Provide answers in small, digestible chunks. If the user needs more details, wait for them to ask for additional information rather than giving everything at once.
+2. **Maintain Context**: Remember the details of the conversation during the session. If the user asks about the same thing multiple times, refer back to previous responses to maintain continuity.
+3. **Flight Assistance**: Offer flight booking options and check-in reminders. Suggest airlines based on preferences (budget, luxury, eco-friendly).
+4. **Accommodation Recommendations**: Help users find hotels or rentals based on budget and location preferences. Avoid providing too many options in one response.
+5. **Destination Insights**: Share relevant details about destinations, such as weather and activities, and only provide further information when asked.
+6. **Activity Suggestions**: Offer 1-2 recommendations at a time, including local events or tours. Wait for the user to request more.
+7. **Travel Tips**: Offer basic tips in response to specific queries and avoid overwhelming the user with too many details at once.
 
-// POST function to handle incoming requests
+Be polite and patient. If you cannot handle a query, direct the user to a human travel consultant for further assistance. Remember to engage with users by offering help step by step.`;
+
+// Checklist of questions used to guide the conversation
+const checklist = {
+  general: [
+    "Got your passport?",
+    "Double-check your boarding passes! Wrong date or time? That could be a nightmare!",
+    "Packed your meds? Make sure you’ve got enough for the whole trip plus extra, just in case!",
+    "Charged all your devices? No one wants to fight for an airport outlet!",
+  ],
+  country_specific: {
+    us: [
+      "Do you have your ESTA if you're eligible for the Visa Waiver Program?",
+    ],
+    canada: [
+      "Got your eTA (Electronic Travel Authorization) for Canada?",
+    ],
+    china: [
+      "Do you have your visa for China?",
+    ],
+  },
+};
+
+// Handle the POST request
 export async function POST(req) {
-  const openai = new OpenAI() // Create a new instance of the OpenAI client
-  const data = await req.json() // Parse the JSON body of the incoming request
+  try {
+    const openai = new OpenAI();
+    const { userMessage, destination, date, currentStep } = await req.json();
 
-  // Create a chat completion request to the OpenAI API
-  const completion = await openai.chat.completions.create({
-    messages: [{role: 'system', content: systemPrompt}, ...data], // Include the system prompt and user messages
-    model: 'gpt-4o', // Specify the model to use
-    stream: true, // Enable streaming responses
-  })
+    // Generate the system prompt with dynamic context
+    const dynamicPrompt = `
+    The user is traveling to ${destination} on ${date}.
+    The current checklist step is: ${currentStep}.
+    Use the following checklist to guide the conversation: ${checklist.general.join(", ")}.
+    Ask relevant questions based on the current checklist step, and adjust for country-specific requirements if necessary. For example, if the user is traveling to ${destination}, use any applicable country-specific checklist items.`;
 
-  // Create a ReadableStream to handle the streaming response
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder() // Create a TextEncoder to convert strings to Uint8Array
-      try {
-        // Iterate over the streamed chunks of the response
-        for await (const chunk of completion) {
-          const content = chunk.choices[0]?.delta?.content // Extract the content from the chunk
-          if (content) {
-            const text = encoder.encode(content) // Encode the content to Uint8Array
-            controller.enqueue(text) // Enqueue the encoded text to the stream
+    // Create a chat completion request to the OpenAI API with streaming enabled
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt + dynamicPrompt },
+        { role: 'user', content: userMessage },
+      ],
+      model: 'gpt-3.5-turbo',
+      stream: true, // Enable streaming
+    });
+
+    // Stream the response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          // OpenAI API response is an async iterable when stream: true is enabled
+          for await (const chunk of completion) {
+            const content = chunk.choices[0]?.delta?.content;
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
           }
+        } catch (err) {
+          console.error('Error during streaming:', err);
+          controller.error(err);
+        } finally {
+          controller.close();
         }
-      } catch (err) {
-        controller.error(err) // Handle any errors that occur during streaming
-      } finally {
-        controller.close() // Close the stream when done
-      }
-    },
-  })
+      },
+    });
 
-  return new NextResponse(stream) // Return the stream as the response
+    // Return the stream response
+    return new NextResponse(stream);
+
+  } catch (error) {
+    console.error('Error in POST handler:', error.message);
+    return new NextResponse(
+      JSON.stringify({ error: 'Internal Server Error', details: error.message }),
+      { status: 500 }
+    );
+  }
 }
