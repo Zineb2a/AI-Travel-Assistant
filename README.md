@@ -1,5 +1,6 @@
 
 # **Ready to Go** - Travel Assistant Chatbot
+<img width="717" alt="" src="https://github.com/user-attachments/assets/78d36850-3e82-4ce0-a3c0-0a2b5e56591d">
 
 ## 📖 **Project Overview**
 "Ready to Go" is a travel assistant chatbot designed to help users ensure they are fully prepared for their trip. From packing essentials to checking flight details, the assistant interacts with the user in a friendly, engaging manner, providing real-time support with a progress bar to track completed tasks.
