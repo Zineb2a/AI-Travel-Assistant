@@ -1,5 +1,5 @@
 
-# **[Ready to Go](https://your-vercel-deployment-url.com)** - Travel Assistant Chatbot
+# **[Ready to Go]([https://your-vercel-deployment-url.com](https://am-i-ready-to-go.vercel.app))** - Travel Assistant Chatbot
 <img width="717" alt="" src="https://github.com/user-attachments/assets/78d36850-3e82-4ce0-a3c0-0a2b5e56591d">
 
 ## 📖 **Project Overview**
@@ -74,4 +74,4 @@ This project was built using **Next.js**, **OpenAI's GPT-3.5**, and **Material-U
 
 ### ✨ **Demo**
 
-Check out the live demo of the app: [Ready to Go](https://your-vercel-deployment-url.com)
+Check out the live demo of the app: [Ready to Go](https://am-i-ready-to-go.vercel.app)
