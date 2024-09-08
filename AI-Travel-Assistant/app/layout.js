@@ -15,6 +15,12 @@ const geistMono = localFont({
 export const metadata = {
   title: "Am I Ready To Go?",
   description: "A pre-travel checklist chatbot to help you prepare for your trip.",
+  icons: {
+    icon: [
+      {
+        url: 'https://i.ibb.co/QCxrxfy/logo.png',
+      }, ],
+    },
 };
 
 export default function RootLayout({ children }) {
