@@ -1,21 +1,21 @@
 'use client';
 
 import { Box, Button, Stack, TextField, Typography, useTheme, ThemeProvider, createTheme } from '@mui/material';
+import { Send } from '@mui/icons-material'; // Import Material-UI icons
 import { useState, useRef, useEffect } from 'react';
 
-
-// Custom theme with blue colors for other components
+// Custom theme with blue colors and Google Fonts
 const theme = createTheme({
   palette: {
     primary: {
       main: '#29b6f6', // Light Blue
     },
     secondary: {
-      main: '#03dac6', // Cyan 03dac6
+      main: '#03dac6', // Cyan
     },
   },
   typography: {
-    fontFamily: 'Roboto, sans-serif',
+    fontFamily: 'Poppins, sans-serif', // Custom Google Font
   },
   components: {
     MuiButton: {
@@ -36,14 +36,14 @@ export default function Home() {
       content: "Hi! I'm your travel assistant. I'll help you make sure you're fully prepared for your trip. From packing to documents, I'll guide you every step of the way. Ready to get started?",
     },
   ]);
-  
-
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
     setIsLoading(true);
+    setIsTyping(true);
 
     const newMessage = { role: 'user', content: message };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -95,6 +95,7 @@ export default function Home() {
     }
 
     setIsLoading(false);
+    setIsTyping(false);
   };
 
   const handleKeyPress = (event) => {
@@ -131,7 +132,7 @@ export default function Home() {
         <Box
           sx={{
             width: '100%',
-            maxWidth: '700px',
+            maxWidth: '600px',
             p: 2,
             backgroundColor: 'primary.main',
             color: 'white',
@@ -140,17 +141,18 @@ export default function Home() {
             boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
+         <Typography variant="h5" fontWeight="bold">
   <img src="https://i.ibb.co/QCxrxfy/logo.png" alt="Logo" style={{ width: '40px', marginRight: '10px', verticalAlign: 'middle' }} />
-  Am I Ready to Go ?
+  Ready to Go ?
 </Typography>
+
         </Box>
 
         {/* Main chat container */}
         <Stack
           direction="column"
           width="100%"
-          maxWidth="700px"
+          maxWidth="600px"
           height="70vh"
           bgcolor="white"
           boxShadow="0px 8px 24px rgba(0, 0, 0, 0.15)"
@@ -180,7 +182,7 @@ export default function Home() {
                 <Box
                   sx={{
                     backgroundColor:
-                      message.role === 'assistant' ? 'primary.main' : 'secondary.main', // Keep the original colors
+                      message.role === 'assistant' ? 'primary.main' : 'secondary.main',
                     color: 'white',
                     borderRadius: '16px',
                     p: 2,
@@ -197,6 +199,24 @@ export default function Home() {
                 </Box>
               </Box>
             ))}
+            {isTyping && (
+              <Box display="flex" justifyContent="flex-start">
+                <Box
+                  sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    borderRadius: '16px',
+                    p: 2,
+                    maxWidth: '75%',
+                    wordWrap: 'break-word',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  Typing...
+                </Box>
+              </Box>
+            )}
             <div ref={messagesEndRef} />
           </Stack>
 
@@ -220,7 +240,7 @@ export default function Home() {
               onClick={sendMessage}
               disabled={isLoading}
               sx={{
-                width: '100px',
+                width: '56px',
                 height: '56px',
                 background: 'linear-gradient(135deg, #1e88e5, #29b6f6)',
                 color: 'white',
@@ -230,8 +250,9 @@ export default function Home() {
                 },
               }}
             >
-              {isLoading ? 'Sending...' : 'Send'}
+              {isLoading ? '...' : <Send />} {/* Icon for send button */}
             </Button>
+           
           </Stack>
         </Stack>
 
@@ -247,10 +268,12 @@ export default function Home() {
           }}
         >
           <Typography variant="body2">
-            © 2024 Am I Ready to Go App. All rights reserved.
+            © 2024 Ready to Go. All rights reserved.
           </Typography>
         </Box>
       </Box>
     </ThemeProvider>
+ 
+
   );
 }
