@@ -9,17 +9,17 @@ const getTheme = (mode) => createTheme({
   palette: {
     mode: mode,
     primary: {
-      main: mode === 'light' ? '#29b6f6' : '#90caf9', // Light Blue in light mode, lighter blue for dark mode
+      main: mode === 'light' ? '#29b6f6' : '#90caf9', 
     },
     secondary: {
-      main: mode === 'light' ? '#03dac6' : '#80cbc4', // Cyan in light mode, softer cyan for dark mode
+      main: mode === 'light' ? '#03dac6' : '#80cbc4', 
     },
     background: {
-      default: mode === 'light' ? '#e3f2fd' : '#1c1c1c', // Lighter background for light mode, darker background for dark mode
+      default: mode === 'light' ? '#e3f2fd' : '#1c1c1c', 
     },
   },
   typography: {
-    fontFamily: 'Poppins, sans-serif', // Custom Google Font
+    fontFamily: 'Poppins, sans-serif', 
   },
   components: {
     MuiButton: {
@@ -49,7 +49,7 @@ export default function Home() {
   // Total number of tasks for preparation (customizable)
   const totalSteps = 26;
 
-  const theme = getTheme(darkMode ? 'dark' : 'light'); // Use dark or light theme based on state
+  const theme = getTheme(darkMode ? 'dark' : 'light'); 
 
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev); // Toggle dark mode
@@ -186,18 +186,21 @@ export default function Home() {
           direction="column"
           width="100%"
           maxWidth="600px"
-          height="70vh"
+          height="calc(100vh - 260px)" // Adjust height to avoid overlapping keyboard
           bgcolor={theme.palette.mode === 'light' ? 'white' : '#333'} // Background for messages
           boxShadow="0px 8px 24px rgba(0, 0, 0, 0.15)"
           borderRadius={4}
           p={3}
           spacing={3}
+          sx={{
+            overflowY: 'auto', // Enable scrolling for chat container
+            WebkitOverflowScrolling: 'touch', // Smooth scrolling on mobile
+          }}
         >
           <Stack
             direction="column"
             spacing={2}
             flexGrow={1}
-            overflow="auto"
             sx={{
               padding: 2,
               borderRadius: '8px',
@@ -215,7 +218,7 @@ export default function Home() {
                 <Box
                   sx={{
                     backgroundColor:
-                      darkMode 
+                      darkMode
                         ? (message.role === 'assistant' ? '#424242' : '#616161') // Shades of gray for dark mode
                         : (message.role === 'assistant' ? 'primary.main' : 'secondary.main'),
                     color: 'white',
@@ -253,61 +256,60 @@ export default function Home() {
               </Box>
             )}
             <div ref={messagesEndRef} />
-          </          Stack>
+          </Stack>
 
-{/* Input and send button */}
-<Stack direction="row" spacing={2}>
-  <TextField
-    label="Type a message..."
-    fullWidth
-    variant="outlined"
-    value={message}
-    onChange={(e) => setMessage(e.target.value)}
-    onKeyPress={handleKeyPress}
-    disabled={isLoading}
-    sx={{
-      '& .MuiOutlinedInput-root': {
-        borderRadius: '12px',
-      },
-    }}
-  />
-  <Button
-    variant="contained"
-    onClick={sendMessage}
-    disabled={isLoading}
-    sx={{
-      width: '56px',
-      height: '56px',
-      background: 'linear-gradient(135deg, #1e88e5, #29b6f6)',
-      color: 'white',
-      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-      '&:hover': {
-        background: 'linear-gradient(135deg, #1e88e5, #0288d1)',
-      },
-    }}
-  >
-    {isLoading ? '...' : <Send />} {/* Icon for send button */}
-  </Button>
-</Stack>
-</Stack>
+          {/* Input and send button */}
+          <Stack direction="row" spacing={2}>
+            <TextField
+              label="Type a message..."
+              fullWidth
+              variant="outlined"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={sendMessage}
+              disabled={isLoading}
+              sx={{
+                width: '56px',
+                height: '56px',
+                background: 'linear-gradient(135deg, #1e88e5, #29b6f6)',
+                color: 'white',
+                boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1e88e5, #0288d1)',
+                },
+              }}
+            >
+              {isLoading ? '...' : <Send />} {/* Icon for send button */}
+            </Button>
+          </Stack>
+        </Stack>
 
-{/* Footer with reserved rights */}
-<Box
-sx={{
-  width: '100%',
-  maxWidth: '600px',
-  p: 2,
-  textAlign: 'center',
-  mt: 2,
-  color: '#555',
-}}
->
-<Typography variant="body2">
-  © 2024 Ready to Go. All rights reserved.
-</Typography>
-</Box>
-</Box>
-</ThemeProvider>
-);
+        {/* Footer with reserved rights */}
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '600px',
+            p: 2,
+            textAlign: 'center',
+            mt: 2,
+            color: '#555',
+          }}
+        >
+          <Typography variant="body2">
+            © 2024 Ready to Go. All rights reserved.
+          </Typography>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
 }
-
